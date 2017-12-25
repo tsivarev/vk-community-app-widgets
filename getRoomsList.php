@@ -1,5 +1,6 @@
 <?
-function rooms() {
+function rooms()
+{
     $mysqli = new mysqli('localhost', 'app_connect', 'app123321', 'VKROOMS');
     $mysqli->set_charset("cp1251");
 

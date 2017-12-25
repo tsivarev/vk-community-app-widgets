@@ -42,7 +42,7 @@ var app = {
         var currentDay = new Date().getDate();
 
         for (var i = 0; i < app.MAX_HOLD_DAYS; i++) {
-            var nextDate = new Date(new Date().setDate( currentDay + i ));
+            var nextDate = new Date(new Date().setDate(currentDay + i));
             selectElement.innerHTML += '<option>' + nextDate.toLocaleDateString() + '</option>';
         }
     },
@@ -56,10 +56,10 @@ var app = {
             var stringTime = time.toLocaleTimeString().split(/:00$/)[0];
             tableHtml +=
                 '<li>' +
-                    '<input type="checkbox" id="time-' + stringTime + '">' +
-                    '<label for="time-' + stringTime + '">' +
-                        '<span>' + stringTime + '</span>' +
-                    '</label>' +
+					'<input type="checkbox" id="time-' + stringTime + '">' +
+					'<label for="time-' + stringTime + '">' +
+						'<span>' + stringTime + '</span>' +
+					'</label>' +
                 '</li>';
         }
         return tableHtml;

@@ -32,7 +32,7 @@ h3 {
 
 a {
     text-decoration: none;
-    outline: none!important;
+    outline: none;
     color: #5e81a8;
 }
 
@@ -81,11 +81,11 @@ small {
     transform: scale(1);
 }
 
-.room-list-item:hover .gradient{
+.room-list-item:hover .gradient {
     opacity: 0;
 }
 
-.room-list-item:hover .room-status{
+.room-list-item:hover .room-status {
     color: #5e81a8;
     background-color: #f8f8f8;
 }
@@ -182,7 +182,7 @@ small {
 #list-select-time input[type=checkbox]:disabled + label {
     color: #a13532;
     background-color: #ece2d9;
-    border-bottom: 1px solid #a13532!important;
+    border-bottom: 1px solid #a13532 !important;
 }
 
 #list-select-time label {
