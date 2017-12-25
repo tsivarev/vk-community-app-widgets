@@ -8,15 +8,34 @@ var app = {
     HOUR_SEPARATOR: 2, // 1 - EVERY HOUR, 2 - EVERY 30 MIN, 4 - EVERY 15 MIN
 
     pages: {
-        install: document.getElementById('page-install'),
-        pickDatetime: document.getElementById('page-pick-datetime')
+        // install: document.getElementById('page-install'),
+        pickDatetime: document.getElementById('page-pick-datetime'),
+        pickRoom: document.getElementById('page-pick-room')
     },
     elements: {
         dateSelector: document.getElementById('select-date'),
-        timeSelector: document.getElementById('select-time')
+        timeSelector: document.getElementById('list-select-time')
     },
     groupId: 0,
     appId: 0,
+
+    show: function (page) {
+        app.hideAll();
+        page.classList.remove('hidden');
+
+        switch (page) {
+            case app.pages.pickDatetime:
+                app.fillDateSelector(app.elements.dateSelector);
+                app.elements.timeSelector.innerHTML = app.generateTimePickerList();
+                break;
+        }
+    },
+
+    hideAll: function () {
+        for (var page in app.pages) {
+            app.pages[page].classList.add('hidden');
+        }
+    },
 
     fillDateSelector: function (selectElement) {
         selectElement.innerHTML = '';
@@ -34,15 +53,20 @@ var app = {
         for (var i = 0; i < app.HOURS_PER_DAY * app.MINUTES_PER_HOUR; i += app.MINUTES_PER_HOUR / app.HOUR_SEPARATOR) {
             var date = new Date(new Date(0).setHours(0));
             var time = new Date(date.setMinutes(i));
-
-            tableHtml += '<li>' + time.toLocaleTimeString().split(/:00$/)[0] + '</li>';
+            var stringTime = time.toLocaleTimeString().split(/:00$/)[0];
+            tableHtml +=
+                '<li>' +
+                    '<input type="checkbox" id="time-' + stringTime + '">' +
+                    '<label for="time-' + stringTime + '">' +
+                        '<span>' + stringTime + '</span>' +
+                    '</label>' +
+                '</li>';
         }
         return tableHtml;
     },
 
     init: function () {
-        app.fillDateSelector(app.elements.dateSelector);
-        app.elements.timeSelector.innerHTML = app.generateTimePickerList();
+        app.show(app.pages.pickDatetime);
     }
 };
 
