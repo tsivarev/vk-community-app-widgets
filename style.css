@@ -1,5 +1,5 @@
 * {
-    -webkit-tap-highlight-color: transparent; /* Прячет блик при клике на кнопку */
+    -webkit-tap-highlight-color: transparent; /* Прячет блик при клике на элемент */
 }
 
 body {
@@ -18,11 +18,7 @@ ul {
     padding: 0;
 }
 
-b {
-    font-weight: 500;
-}
-
-h2 {
+b, h2 {
     font-weight: 500;
 }
 
@@ -120,6 +116,7 @@ small {
     min-height: 0.01%;
     overflow-x: auto;
     overflow-y: auto;
+    margin: 5px;
 }
 
 .custom-select {
@@ -143,7 +140,7 @@ small {
     cursor: pointer;
     display: inline-block;
     line-height: 16px;
-    margin: 5px 10px;
+    margin: 7px 10px;
 }
 
 .btn-vk-ui:active, .btn-vk-ui:hover {
@@ -158,6 +155,10 @@ small {
     font-family: -apple-system, BlinkMacSystemFont, Roboto, "Open Sans", "Helvetica Neue", sans-serif;
     font-weight: 100;
     font-size: 0.8125em;
+}
+
+.attention {
+    border-bottom: 1px solid #ff1493;
 }
 
 #list-select-time {
