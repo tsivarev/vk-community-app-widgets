@@ -1,4 +1,4 @@
-var app = {
+let app = {
     API_VERSION: '5.69',
     MAX_HOLD_DAYS: 10,
     MINUTES_PER_HOUR: 60,
@@ -8,6 +8,12 @@ var app = {
         EVERY_30MIN: 2,
         EVERY_15MIN: 3
     },
+    URL: {
+        GET_ROOMS_LIST: 'getRoomsList.php'
+    },
+    SERVER_ANSWERS: {
+        OK: 200
+    },
 
     pages: {
         pickDatetime: document.getElementById('page-pick-datetime'),
@@ -15,104 +21,71 @@ var app = {
     },
     elements: {
         dateSelector: document.getElementById('select-date'),
-        timeSelector: document.getElementById('list-select-time')
+        timeSelector: document.getElementById('list-select-time'),
+        datetimePageHeader: document.querySelector('#page-pick-datetime .header'),
+        datetimePageTitle: document.getElementById('text-title-header')
     },
 
-    show: function (page) {
+    show: (page) => {
         app.hideAll();
-        page.classList.remove('hidden');
+        view.show(page);
 
         switch (page) {
             case app.pages.pickDatetime:
-                app.fillDateSelector(app.elements.dateSelector);
-                app.elements.timeSelector.innerHTML = app.generateTimePickerList();
+                let room = app.pages.pickRoom.rooms.filter(room => room.id == page.context)[0];
+
+                view.setElementStyle(app.elements.datetimePageHeader, 'backgroundImage', 'url(' + room.photoLink + ')');
+                view.setRoomTitle(app.elements.datetimePageTitle, room.name, room.location);
+                view.generateDateSelector(app.elements.dateSelector, app.MAX_HOLD_DAYS);
+                view.generateTimePickerList(app.elements.timeSelector, app.HOURS_PER_DAY, app.MINUTES_PER_HOUR, app.HOUR_SEPARATOR.EVERY_30MIN);
                 break;
 
             case app.pages.pickRoom:
-                var request = app.getXmlHTTP();
-                request.open('GET', 'getRoomsList.php', true);
-                request.onreadystatechange = function () {
-                    if (request.readyState === 4 && request.status === 200) {
-                        var response = JSON.parse(request.responseText);
-                        app.pages.pickRoom.innerHTML = app.generateRoomsPickerList(response.data);
-                    }
-                };
-                request.send();
+                app.fetchGetData(app.URL.GET_ROOMS_LIST).then((rooms) => {
+                    app.pages.pickRoom.rooms = rooms;
+                    view.generateRoomsPickerList(app.pages.pickRoom, rooms);
+                });
                 break;
         }
     },
 
-    hideAll: function () {
-        for (var page in app.pages) {
-            app.pages[page].classList.add('hidden');
+    hideAll: () => {
+        for (let page in app.pages) {
+            view.hide(app.pages[page]);
         }
     },
 
-    generateRoomsPickerList: function (rooms) {
-        var roomItemHtml = '';
-
-        rooms.forEach(function (room) {
-            // TODO: Get Room status
-            roomItemHtml += '<div class="room-list-item" style="background-image: url(' + room.photoLink + ')">' +
-                        '<div class="gradient"></div>' +
-                        '<h2 class="room-name">' + room.name + '<small>' + room.location + '</small></h2>' +
-                        '<span class="room-status attention">Сейчас занята. Освободится в 17:30</span>' +
-                    '</div>'
-        });
-        return roomItemHtml;
-    },
-
-    fillDateSelector: function (selectElement) {
-        selectElement.innerHTML = '';
-        var currentDay = new Date().getDate();
-
-        for (var i = 0; i < app.MAX_HOLD_DAYS; i++) {
-            var nextDate = new Date(new Date().setDate(currentDay + i));
-            selectElement.innerHTML += '<option>' + nextDate.toLocaleDateString() + '</option>';
-        }
-    },
-
-    generateTimePickerList: function () {
-        var tableHtml = '';
-
-        for (var i = 0; i < app.HOURS_PER_DAY * app.MINUTES_PER_HOUR; i += app.MINUTES_PER_HOUR / app.HOUR_SEPARATOR.EVERY_30MIN) {
-            var date = new Date(new Date(0).setHours(0));
-            var time = new Date(date.setMinutes(i));
-            var stringTime = time.toLocaleTimeString().split(/:00$/)[0];
-            tableHtml +=
-                '<li>' +
-					'<input type="checkbox" id="time-' + stringTime + '">' +
-					'<label for="time-' + stringTime + '">' +
-						'<span>' + stringTime + '</span>' +
-					'</label>' +
-                '</li>';
-        }
-        return tableHtml;
-    },
-
-    getXmlHTTP: function () {
-        var xmlHTTP;
-        try {
-            xmlHTTP = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (eventMsxml2Error) {
-            try {
-                xmlHTTP = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (eventMicrosoftError) {
-                xmlHTTP = false;
-            }
-        }
-
-        if (!xmlHTTP && typeof XMLHttpRequest!='undefined') {
-            xmlHTTP = new XMLHttpRequest();
-        }
-        return xmlHTTP;
-    },
-
-    init: function () {
+    setPickDatetimePageContext: (context) => {
+        app.pages.pickDatetime.context = context;
         app.show(app.pages.pickDatetime);
+    },
+
+    fetchGetData: (url) => {
+        return fetch(url).then((response) => {
+            if (response.status !== app.SERVER_ANSWERS.OK) {
+                throw new Error(response.statusText);
+            } else if (response.headers.get("Content-type") !== "application/json") {
+                throw new TypeError();
+            }
+
+            return response.json();
+        }).then((responseData) => {
+            if (responseData.status === "error") {
+                throw new Error(responseData.message);
+            }
+
+            return responseData.data;
+        });
+    },
+
+    init: () => {
+        app.show(app.pages.pickRoom);
+        app.elements.datetimePageHeader.addEventListener('click', (event) => {
+            app.show(app.pages.pickRoom);
+        });
     }
 };
 
-window.addEventListener('load', function () {
+window.addEventListener('load', () => {
     app.init();
 });
