@@ -1,5 +1,5 @@
 <?
-header('Content-type: application/json');
+header("Content-type: application/json");
 echo json_encode(getRooms());
 
 function getRooms()
@@ -9,7 +9,7 @@ function getRooms()
             "status" => "success",
         ];
 
-        $mysqli = new mysqli('localhost', 'app_connect', 'app123321', 'VKROOMS');
+        $mysqli = new mysqli("localhost", "app_connect", "app123321", "VKROOMS");
         $mysqli->set_charset("utf8");
         if ($mysqli->connect_error) {
             throw new Exception("[$mysqli->connect_errno]: $mysqli->connect_error");
