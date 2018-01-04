@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta property="og:description"
+          content="Приложение 'Тайная комната' позволит Вам забронировать переговорную">
+
+    <title>"Тайная комната" - забронируй переговорную здесь</title>
+
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<section id="page-pick-room" class="page hidden">
+
+</section>
+<section id="page-pick-datetime" class="page hidden">
+    <div class="header">
+        <h2 id="text-title-header" class="room-name"></h2>
+    </div>
+    <div class="wrapper-title">
+        <h3>Выберите дату</h3>
+        <select id="select-date" class="custom-select"></select>
+    </div>
+    <div class="content">
+        <h3>Доступное время</h3>
+        <div class="responsive">
+            <ul id="list-select-time"></ul>
+        </div>
+        <a href="#" id="btn-hold" class="btn btn-vk-ui">Забронировать</a>
+    </div>
+</section>
+</body>
+
+<script src="https://vk.com/js/api/xd_connection.js?2" type="text/javascript"></script>
+<script src="view.js" type="text/javascript"></script>
+<script src="app.js" type="text/javascript"></script>
+
+</html>

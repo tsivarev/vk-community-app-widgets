@@ -1,0 +1,209 @@
+* {
+    -webkit-tap-highlight-color: transparent; /* Прячет блик при клике на элемент */
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #f8f8f8;
+    color: #5c5c5c;
+    font-size: 16px;
+    font-weight: 300;
+    font-family: -apple-system, BlinkMacSystemFont, Roboto, 'Open Sans', sans-serif;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+b, h2 {
+    font-weight: 500;
+}
+
+h3 {
+    display: inline-block;
+}
+
+a {
+    text-decoration: none;
+    outline: none;
+    color: #5e81a8;
+}
+
+small {
+    font-size: 0.5em;
+    font-weight: 400;
+    margin: 0 3px;
+}
+
+.page {
+    text-align: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.wrapper-title {
+    background-color: #5e81a8;
+    color: #f8f8f8;
+    min-height: 50px;
+}
+
+.content {
+    padding: 5px 25px;
+}
+
+.header, .room-list-item {
+    min-height: 120px;
+    padding: 5px 25px;
+    text-align: left;
+    background-size: 100%;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+}
+
+.room-list-item {
+    position: relative;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.room-list-item:hover {
+    transform: scale(1.03);
+}
+
+.room-list-item:active {
+    transform: scale(1);
+}
+
+.room-list-item:hover .gradient {
+    opacity: 0;
+}
+
+.room-list-item:hover .room-status {
+    color: #5e81a8;
+    background-color: #f8f8f8;
+}
+
+.gradient {
+    transition: 0.25s;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(50, 50, 50, 0.75), rgba(250, 250, 250, 0));
+}
+
+.room-name {
+    display: inline-block;
+    padding: 7px 15px;
+    background-color: #f8f8f8;
+    position: relative;
+}
+
+.room-status {
+    color: #f8f8f8;
+    position: absolute;
+    font-size: 0.625em;
+    bottom: 15px;
+    right: 25px;
+    padding: 3px 5px;
+}
+
+.responsive {
+    min-height: 0.01%;
+    overflow-x: auto;
+    overflow-y: auto;
+    margin: 5px;
+}
+
+.custom-select {
+    padding: 10px 5px 10px 10px;
+    font-size: 1.1em;
+    background: #5e81a8;
+    color: #f8f8f8;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.btn:active, .btn:hover {
+    background-color: #f1f1f1;
+}
+
+.btn {
+    padding: 7px 15px;
+    height: 30px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-block;
+    line-height: 16px;
+    margin: 7px 10px;
+}
+
+.btn-vk-ui:active, .btn-vk-ui:hover {
+    background-color: #688bb0;
+}
+
+.btn-vk-ui {
+    letter-spacing: 0.1px;
+    color: #fff;
+    background: #5e81a8;
+    border-radius: 2px;
+    font-family: -apple-system, BlinkMacSystemFont, Roboto, "Open Sans", "Helvetica Neue", sans-serif;
+    font-weight: 100;
+    font-size: 0.8125em;
+}
+
+.attention {
+    border-bottom: 1px solid #ff1493;
+}
+
+#page-pick-datetime .header {
+    cursor: pointer;
+}
+
+#list-select-time {
+    display: table;
+    position: relative;
+    margin: 0 0 0 25px;
+}
+
+#list-select-time li {
+    display: table-cell;
+}
+
+#list-select-time input[type=checkbox] {
+    display: none;
+}
+
+#list-select-time input[type=checkbox]:checked + label {
+    color: #5e81a8;
+    background-color: #d9e2ec;
+}
+
+#list-select-time input[type=checkbox]:disabled + label {
+    color: #a13532;
+    background-color: #ece2d9;
+    border-bottom: 1px solid #a13532 !important;
+}
+
+#list-select-time label {
+    display: block;
+    min-width: 70px;
+    height: 25px;
+    line-height: 25px;
+    border-bottom: 1px solid #5e81a8;
+    cursor: pointer;
+}
+
+#list-select-time span {
+    position: relative;
+    right: 35px;
+}
+
+.hidden {
+    display: none;
+}
