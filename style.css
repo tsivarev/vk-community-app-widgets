@@ -3,6 +3,7 @@
 }
 
 body {
+    overflow-y: hidden;
     padding: 0;
     margin: 0;
     background-color: #f8f8f8;
@@ -39,9 +40,10 @@ small {
 }
 
 .page {
+    height: 500px;
     text-align: center;
     overflow-x: hidden;
-    overflow-y: hidden;
+    overflow-y: auto;
 }
 
 .wrapper-title {

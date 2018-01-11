@@ -33,7 +33,7 @@ let view = {
             let stringTime = time.toLocaleTimeString().split(/:00$/)[0];
             listHtml +=
                 `<li>` +
-                    `<input type="checkbox" id="time-${stringTime}">` +
+                    `<input type="checkbox" class="time-item" id="time-${stringTime}">` +
                     `<label for="time-${stringTime}">` +
                         `<span>${stringTime}</span>` +
                     `</label>` +
@@ -52,7 +52,6 @@ let view = {
 
     disableElement(element) {
         let DOMElement = document.getElementById(element);
-
         DOMElement.disabled = true;
     },
 
