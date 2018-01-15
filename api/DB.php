@@ -56,7 +56,7 @@ class DB
 
         $statementResult = $statement->get_result();
         while ($row = $statementResult->fetch_assoc()) {
-            $result['data'][] = $row;
+            $result[] = $row;
         }
         return $result;
     }
@@ -66,7 +66,7 @@ class DB
         $result = null;
 
         while ($row = $query->fetch_assoc()) {
-            $result['data'][] = $row;
+            $result[] = $row;
         }
         if (!$result) {
             throw new ApiException('Пустой результат');

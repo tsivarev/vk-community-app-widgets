@@ -3,15 +3,26 @@ let app = {
     MAX_HOLD_DAYS: 10,
     MINUTES_PER_HOUR: 60,
     HOURS_PER_DAY: 24,
+    VK_VIEWER_TYPE: {
+        ADMIN: 4,
+        EDITOR: 3,
+        MODERATOR: 2,
+        PARTICIPANT: 1,
+        NOT_IN_COMMUNITY: 0
+    },
+    VK_API_SETTINGS_SCOPE: {
+        APP_WIDGET: 64,
+    },
     HOUR_SEPARATOR: {
         EVERY_HOUR: 1,
         EVERY_30MIN: 2,
         EVERY_15MIN: 3
     },
     API_METHODS: {
-        GET_ROOMS_LIST: `rooms_get_rooms`,
+        GET_ROOMS_LIST: `rooms_get_all`,
         GET_ROOMS_HOLD_PERIOD: `rooms_get_hold_period`,
-        POST_HOLD_PERIODS: `rooms_hold_periods`
+        POST_HOLD_PERIODS: `rooms_hold_periods`,
+        WIDGET_UPDATE: `widget_update`
     },
     SERVER_ANSWERS: {
         OK: 200,
@@ -20,7 +31,13 @@ let app = {
     CONTENT_TYPES: {
         APPLICATION_JSON: `application/json`
     },
+    APP_NAME: `Тайная комната`,
+    WIDGET_TYPE: `cover_list`,
+    WIDGET_BUTTON_TEXT: `Забронировать`,
+    WIDGET_COVER_LIST_ITEMS: 3,
 
+    appId: 0,
+    groupId: 0,
     pages: {
         pickDatetime: document.getElementById(`page-pick-datetime`),
         pickRoom: document.getElementById(`page-pick-room`)
@@ -52,10 +69,7 @@ let app = {
                 break;
 
             case app.pages.pickRoom:
-                app.callApiMethod(app.API_METHODS.GET_ROOMS_LIST).then(rooms => {
-                    app.pages.pickRoom.rooms = rooms;
-                    view.generateRoomsPickerList(app.pages.pickRoom, rooms);
-                });
+                view.generateRoomsPickerList(page, page.rooms);
                 break;
         }
     },
@@ -99,7 +113,7 @@ let app = {
         });
     },
 
-    holdRoomEvent(event) {
+    async holdRoomEvent(event) {
         event.preventDefault();
         //TODO: Запретить бронировать на прошедшее время
         //TODO: Выводить сообщения в интерфейс пользователю
@@ -114,7 +128,6 @@ let app = {
             return false;
         }
 
-        //TODO: Объединить соседние ячейки времени
         let data = new FormData();
         let requestDataHoldPeriods = {
             roomId: app.pages.pickDatetime.context,
@@ -146,10 +159,19 @@ let app = {
 
         fetch(`api.php?method=${app.API_METHODS.POST_HOLD_PERIODS}`, requestParams)
             .then(response => {
-                return response.text();
+                return response.json();
             })
-            .then(data => {
-                console.log(data);
+            .then(async data => {
+                if (data.response == `success`) {
+                    location.hash = app.pages.pickDatetime.context;
+                    // location.reload();
+
+                    let requestData = {
+                        code: `return` + await app.generateWidget() + `;`,
+                        type: app.WIDGET_TYPE
+                    };
+                    app.callApiMethod(app.API_METHODS.WIDGET_UPDATE, requestData);
+                }
             });
     },
 
@@ -188,10 +210,10 @@ let app = {
                 }
                 return response.json();
             }).then(responseData => {
-                if (responseData.status == app.SERVER_ANSWERS.CONTENT_ERROR) {
-                    throw new Error(responseData.message);
+                if (!responseData.response || responseData.response.error) {
+                    throw new Error();
                 }
-                return responseData.data;
+                return responseData.response;
             });
     },
 
@@ -204,8 +226,70 @@ let app = {
         return results === null ? `` : decodeURIComponent(results[1].replace(/\+/g, ` `));
     },
 
+    generateWidget() {
+        return app.callApiMethod(app.API_METHODS.GET_ROOMS_LIST).then(rooms => {
+            let widgetObject = {
+                title: app.APP_NAME,
+                rows: []
+            };
+            for (let i = 0; i < app.WIDGET_COVER_LIST_ITEMS; i++) {
+                let appUrl = `https://vk.com/app` + app.appId + `_-` + app.groupId + `#` + rooms[i].id;
+                let widgetObjectRow = {
+                    title: rooms[i].name + ` ` + rooms[i].location,
+                    button: app.WIDGET_BUTTON_TEXT,
+                    descr: rooms[i].statusText,
+                    cover_id: rooms[i].coverId,
+                    url: appUrl,
+                    button_url: appUrl
+                };
+                widgetObject.rows.push(widgetObjectRow);
+            }
+            return JSON.stringify(widgetObject);
+        });
+    },
+
+    createWidget() {
+        VK.callMethod('showAppWidgetPreviewBox', 'cover_list', 'return { "title": "Тайная комната", "rows": [{ "title": "Оранжевая", "button": "Забронировать", "descr": "Свободна до 21:00", "cover_id": "142731737_8838", "url": "https://vk.com/app6303869_-149019044#1", "button_url": "https://vk.com/app6303869_-149019044#2" }] };');
+        VK.addCallback('onAppWidgetPreviewFail', (data) => {
+            console.log('fail',data);
+        });
+        VK.addCallback('onAppWidgetPreviewCancel', (data) => {
+            console.log('cancel',data);
+        });
+        VK.addCallback('onAppWidgetPreviewSuccess', (data) => {
+            console.log('success',data);
+        });
+    },
+
+    checkWidgetPermission() {
+        // if (!(app.getUrlParameter(`api_settings`) & app.VK_API_SETTINGS_SCOPE.APP_WIDGET)) {
+        //     VK.callMethod("showGroupSettingsBox", app.VK_API_SETTINGS_SCOPE.APP_WIDGET);
+        //     let onGroupSettingsChanged = (data) => {
+        //         console.log('access', data);
+        //         app.generateWidget();
+        //         VK.removeCallback('onGroupSettingsChanged', onGroupSettingsChanged);
+        //     };
+        //     VK.addCallback('onGroupSettingsChanged', onGroupSettingsChanged);
+        // }
+        //app.createWidget();
+    },
+
     init() {
-        app.show(app.pages.pickRoom);
+        VK.init(null, null, app.VK_API_VERSION);
+        app.appId = app.getUrlParameter('api_id');
+        app.groupId = app.getUrlParameter('group_id');
+        let requestedRoomId = +app.getUrlParameter('hash');
+
+        app.callApiMethod(app.API_METHODS.GET_ROOMS_LIST).then(rooms => {
+            app.pages.pickRoom.rooms = rooms;
+
+            if (requestedRoomId && (requestedRoomId > 0 && requestedRoomId < rooms.length)) {
+                app.setPickDatetimePageContext(requestedRoomId);
+            } else {
+                app.show(app.pages.pickRoom);
+            }
+        });
+
         app.elements.datetimePageHeader.addEventListener(`click`, event => {
             event.preventDefault();
             app.show(app.pages.pickRoom);
@@ -217,6 +301,9 @@ let app = {
         });
 
         app.elements.holdButton.addEventListener(`click`, app.holdRoomEvent);
+        if (app.getUrlParameter(`viewer_type`) == app.VK_VIEWER_TYPE.ADMIN) {
+            app.checkWidgetPermission();
+        }
     }
 };
 

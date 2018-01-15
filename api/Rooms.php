@@ -1,7 +1,6 @@
 <?php
 
-function rooms_hold_periods()
-{
+function rooms_hold_periods() {
     $request_body = api_get_body();
     $hold_date = $request_body->{'date'};
     $db_date_format = 'Y-m-d H:i:s';
@@ -33,21 +32,21 @@ function rooms_hold_periods()
         );
         $db->execute_statement($prepared_statement, $statement_params);
     }
-    return true;
+    return 'success';
 }
 
-function rooms_get_rooms()
-{
+function rooms_get_all() {
     $db = new DB();
     $query_result = $db->query('SELECT ID id, Name name, Location location, Photo photoLink,
-                                                isHoldedNow(ID) statusCode, roomHoldText(ID) statusText
+                                                isHoldedNow(ID) statusCode, roomHoldText(ID) statusText,
+                                                WIDGET_COVER_ID coverId
                                          FROM Rooms
                                          ORDER BY Location');
-    return $db->get_data_from_query($query_result);
+    $response = $db->get_data_from_query($query_result);
+    return $response ? $response : array();
 }
 
-function rooms_get_hold_period()
-{
+function rooms_get_hold_period() {
     $params = api_get_params(array(
         'roomId' => 'integer',
         'date' => 'date',
@@ -73,5 +72,6 @@ function rooms_get_hold_period()
         ),
     );
     $db->execute_statement($prepared_statement, $statement_params);
-    return $db->get_data_from_statement($prepared_statement);
+    $response = $db->get_data_from_statement($prepared_statement);
+    return $response ? $response : array();
 }

@@ -5,6 +5,7 @@ $method = $_GET['method'];
 require_once 'api/ApiException.php';
 require_once 'api/DB.php';
 require_once 'api/Rooms.php';
+require_once 'api/Widget.php';
 require_once 'api/util.php';
 
 try {

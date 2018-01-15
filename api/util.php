@@ -15,6 +15,9 @@ function api_get_params($annotations)
             case 'integer':
                 $result[$name] = intval($requestedData->{$name});
                 break;
+            case 'string':
+                $result[$name] = strval(stripslashes($requestedData->{$name}));
+                break;
             case 'date':
                 $dateFormat = 'd.m.Y';
                 $date = $requestedData->{$name};
@@ -38,6 +41,7 @@ function api_render_error($msg)
 function api_render_response($response)
 {
     header('Content-Type: application/json');
+    $response = array('response' => $response);
     $json = json_encode($response);
     echo $json;
     exit;
