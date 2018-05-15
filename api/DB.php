@@ -1,12 +1,17 @@
 <?php
 
+const APP_HOST = 'localhost';
+const APP_DB_USER = 'app_connect';
+const APP_DB_PASSWORD = 'app123321';
+const APP_DB_NAME = 'VKROOMS';
+
 class DB
 {
     private $mysqli = null;
 
-    public function __construct()
+    public function __construct($hostname = APP_HOST, $db_user = APP_DB_USER, $db_password = APP_DB_PASSWORD, $db_name = APP_DB_NAME)
     {
-        $this->mysqli = new mysqli('localhost', 'app_connect', 'app123321', 'VKROOMS');
+        $this->mysqli = new mysqli($hostname, $db_user, $db_password, $db_name);
         $this->mysqli->set_charset('utf8');
         if ($this->mysqli->connect_error) {
             throw new Exception($this->mysqli->connect_errno . ': ' . $this->mysqli->connect_error);
