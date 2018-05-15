@@ -75,3 +75,31 @@ function rooms_get_hold_period() {
     $response = $db->get_data_from_statement($prepared_statement);
     return $response ? $response : array();
 }
+
+function rooms_add_new() {
+    $params = api_get_params(array(
+        'name' => 'string',
+        'location' => 'string',
+        'photoLink' => 'string',
+    ));
+    $db = new DB();
+    $prepared_statement = $db->prepare('INSERT INTO Rooms (Name, Location, Photo)
+                                                VALUES (?, ?, ?)');
+    $statement_params = array(
+        'roomId' => array(
+            'type' => 's',
+            'value' => $params['name'],
+        ),
+        'location' => array(
+            'type' => 's',
+            'value' => $params['location'],
+        ),
+        'photo' => array(
+            'type' => 's',
+            'value' => $params['photoLink'],
+        ),
+    );
+    $db->execute_statement($prepared_statement, $statement_params);
+    $response = $db->get_data_from_statement($prepared_statement);
+    return $response ? $response : array();
+}

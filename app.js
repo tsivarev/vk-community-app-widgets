@@ -38,6 +38,7 @@ let app = {
 
     appId: 0,
     groupId: 0,
+    viewerType: null,
     pages: {
         pickDatetime: document.getElementById(`page-pick-datetime`),
         pickRoom: document.getElementById(`page-pick-room`)
@@ -69,7 +70,7 @@ let app = {
                 break;
 
             case app.pages.pickRoom:
-                view.generateRoomsPickerList(page, page.rooms);
+                view.generateRoomsPickerList(page, page.rooms, app.viewerType == app.VK_VIEWER_TYPE.ADMIN);
                 break;
         }
     },
@@ -115,8 +116,7 @@ let app = {
 
     async holdRoomEvent(event) {
         event.preventDefault();
-        //TODO: Запретить бронировать на прошедшее время
-        //TODO: Выводить сообщения в интерфейс пользователю
+        
         if (!app.pages.pickDatetime.context) {
             console.log(`Не определена комната`);
             return false;
@@ -233,7 +233,7 @@ let app = {
                 rows: []
             };
             for (let i = 0; i < app.WIDGET_COVER_LIST_ITEMS; i++) {
-                let appUrl = `https://vk.com/app` + app.appId + `_-` + app.groupId + `#` + rooms[i].id;
+                let appUrl = `https://vk.com/app${app.appId}_-${app.groupId}#${rooms[i].id}`;
                 let widgetObjectRow = {
                     title: rooms[i].name + ` ` + rooms[i].location,
                     button: app.WIDGET_BUTTON_TEXT,
@@ -276,6 +276,7 @@ let app = {
 
     init() {
         VK.init(null, null, app.VK_API_VERSION);
+        app.viewerType = app.getUrlParameter('viewer_type');
         app.appId = app.getUrlParameter('api_id');
         app.groupId = app.getUrlParameter('group_id');
         let requestedRoomId = +app.getUrlParameter('hash');
@@ -301,9 +302,6 @@ let app = {
         });
 
         app.elements.holdButton.addEventListener(`click`, app.holdRoomEvent);
-        if (app.getUrlParameter(`viewer_type`) == app.VK_VIEWER_TYPE.ADMIN) {
-            app.checkWidgetPermission();
-        }
     }
 };
 

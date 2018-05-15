@@ -88,6 +88,12 @@ small {
     background-color: #f8f8f8;
 }
 
+.room-list-item:hover .icon_plus,
+.room-list-item:hover .icon_x {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
 .gradient {
     transition: 0.25s;
     position: absolute;
@@ -161,6 +167,28 @@ small {
 
 .attention {
     border-bottom: 1px solid #ff1493;
+}
+
+.icon_plus {
+    background: url(../rooms/images/icon_plus.png) center center / 40px no-repeat;
+    width: 35px;
+    height: 35px;
+    margin: 5px 10px;
+    display: inline-block;
+    vertical-align: middle;
+    filter: grayscale(100%);
+}
+
+.icon_x {
+    background: url(../rooms/images/icon_x.png) center center / 40px no-repeat #f8f8f8;
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    vertical-align: middle;
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    opacity: 0;
 }
 
 #page-pick-datetime .header {

@@ -9,7 +9,9 @@ require_once 'api/Widget.php';
 require_once 'api/util.php';
 
 try {
-    // TODO: if exists
+    if (!is_callable($method)) {
+        throw new ApiException('Undefined method');
+    }
     api_render_response(call_user_func($method));
 } catch (ApiException $e) {
     api_render_error($e->getMessage());
