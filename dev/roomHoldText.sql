@@ -10,12 +10,12 @@ BEGIN
                WHERE room = Holds.RoomID AND
                	 	 nowVar BETWEEN Holds.StartTime AND Holds.FinishTime) -- сейчас занята 
     THEN
-    	SET Answer = (SELECT CONCAT('Сейчас занята. Освободится в ', DATE_FORMAT(Holds.FinishTime, "%H:%i"))
+    	SET Answer = (SELECT CONCAT('Сейчас занята. Освободится в ', DATE_FORMAT(Holds.FinishTime, "%H:%i")) 
                       FROM Holds
 					  WHERE room = Holds.RoomID AND
                      		nowVar BETWEEN Holds.StartTime AND Holds.FinishTime
-                      ORDER BY Holds.finishTime DESC
-                      LIMIT 1);
+                      -- ORDER BY Holds.finishTime DESC
+                      LIMIT 1); 
     ELSE
         SET Answer = (SELECT CONCAT('Свободна', roomFreeTime(room))
                       FROM DUAL);

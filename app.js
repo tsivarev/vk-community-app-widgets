@@ -20,6 +20,7 @@ let app = {
     },
     API_METHODS: {
         GET_ROOMS_LIST: `rooms_get_all`,
+        GET_ROOMS_LIST_BY_HOLD_TIME: `rooms_get_all_by_hold`,
         GET_ROOMS_HOLD_PERIOD: `rooms_get_hold_period`,
         POST_HOLD_PERIODS: `rooms_hold_periods`,
         WIDGET_UPDATE: `widget_update`
@@ -167,10 +168,13 @@ let app = {
                     // location.reload();
 
                     let requestData = {
-                        code: `return` + await app.generateWidget() + `;`,
+                        code: `return ` + await app.generateWidget() + `;`,
                         type: app.WIDGET_TYPE
                     };
-                    app.callApiMethod(app.API_METHODS.WIDGET_UPDATE, requestData);
+                    console.log(requestData);
+                    app.callApiMethod(app.API_METHODS.WIDGET_UPDATE, requestData).then(function(data) {
+                        console.log('widget update', data);
+                    });
                 }
             });
     },
@@ -227,7 +231,7 @@ let app = {
     },
 
     generateWidget() {
-        return app.callApiMethod(app.API_METHODS.GET_ROOMS_LIST).then(rooms => {
+        return app.callApiMethod(app.API_METHODS.GET_ROOMS_LIST_BY_HOLD_TIME).then(rooms => {
             let widgetObject = {
                 title: app.APP_NAME,
                 rows: []

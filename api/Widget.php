@@ -8,7 +8,7 @@ const LARGE_IMAGE_TYPE = '510x128';
 function widget_update() {
     $params = api_get_params(array(
         'code' => 'string',
-        'type' => 'text',
+        'type' => 'cover_list',
     ));
 
     $request_params = array(
@@ -33,13 +33,13 @@ function widget_upload_image() {
     $get_params = http_build_query($request_params);
     $upload_url = file_get_contents('https://api.vk.com/method/appWidgets.getGroupImageUploadServer?' . $get_params);
     $upload_url = json_decode($upload_url)->{'response'}->{'upload_url'};
-
+    
     $ch = curl_init($upload_url);
-    $data = array('image' => '@' . __DIR__ . '\..\images\oras.jpg');
+    $data = array('image' => curl_file_create(__DIR__ . '/../images'));
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
+    
     $res = json_decode(curl_exec($ch));
     curl_close($ch);
 
@@ -65,7 +65,7 @@ function widget_upload_image() {
 function widget_get_images() {
     $request_params = array(
         'offset' => 0,
-        'count' => COUNT_IMAGES_TO_GET,
+        'count' => 10,
         'image_type' => LARGE_IMAGE_TYPE,
         'access_token' => COMMUNITY_ACCESS_TOKEN,
         'v' => VK_API_VERSION,

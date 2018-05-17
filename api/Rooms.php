@@ -38,10 +38,22 @@ function rooms_hold_periods() {
 function rooms_get_all() {
     $db = new DB();
     $query_result = $db->query('SELECT ID id, Name name, Location location, Photo photoLink,
-                                                isHoldedNow(ID) statusCode, roomHoldText(ID) statusText,
-                                                WIDGET_COVER_ID coverId
-                                         FROM Rooms
-                                         ORDER BY Location');
+                                        isHoldedNow(ID) statusCode, roomHoldText(ID) statusText,
+                                        WIDGET_COVER_ID coverId
+                                 FROM Rooms
+                                 ORDER BY Location');
+    $response = $db->get_data_from_query($query_result);
+    return $response ? $response : array();
+}
+
+function rooms_get_all_by_hold() {
+    $db = new DB();
+    $query_result = $db->query('SELECT r.ID id, r.Name name, r.Location location, r.Photo photoLink,
+                                        isHoldedNow(r.ID) statusCode, roomHoldText(r.ID) statusText,
+                                        r.WIDGET_COVER_ID coverId, (SELECT HoldTime FROM Holds WHERE RoomID = r.ID ORDER BY HoldTime DESC LIMIT 1) HoldTime
+                                 FROM Rooms r
+                                 ORDER BY HoldTime DESC
+                                 LIMIT 3');
     $response = $db->get_data_from_query($query_result);
     return $response ? $response : array();
 }
@@ -52,11 +64,11 @@ function rooms_get_hold_period() {
         'date' => 'date',
     ));
     $db = new DB();
-    $prepared_statement = $db->prepare('SELECT StartTime startTime, FinishTime finishTime
-                                                  FROM Holds
-                                                  WHERE Holds.RoomID = ? AND
-                                                        DATE_FORMAT(StartTime, ?) = ?
-                                                  ORDER BY StartTime');
+    $prepared_statement = $db->prepare('SELECT StartTime startTime, FinishTime finishTime, HolderVkID holder
+                                          FROM Holds
+                                          WHERE Holds.RoomID = ? AND
+                                                DATE_FORMAT(StartTime, ?) = ?
+                                          ORDER BY StartTime');
     $statement_params = array(
         'roomId' => array(
             'type' => 'i',
