@@ -16,5 +16,5 @@ try {
 } catch (ApiException $e) {
     api_render_error($e->getMessage());
 } catch (Exception $e) {
-    api_render_error('Internal server error');
+    api_render_error('Internal server error ' . $e->getMessage());
 }

@@ -60,10 +60,25 @@ let view = {
     setRoomTitle(container, name, location) {
         container.innerHTML = name + `<small>${location}</small>`;
     },
-
-    disableElement(element) {
-        let DOMElement = document.getElementById(element);
+    
+    disableElement(selector) {
+        let DOMElement = document.getElementById(selector);
         DOMElement.disabled = true;
+        return DOMElement;
+    },
+
+    disableElementByHolder(selector, holderName) {
+        let DOMElement = view.disableElement(selector);
+        DOMElement.parentElement.setAttribute('title', holderName);
+        return DOMElement;
+    },
+    
+    enableElementWithHolder(selector) {
+        let oldDomElement = document.getElementById(selector).parentElement;
+        let newDomElement = oldDomElement.cloneNode(true);
+        newDomElement.removeAttribute('title');
+        newDomElement.firstElementChild.disabled = false;
+        oldDomElement.parentNode.replaceChild(newDomElement, oldDomElement);
     },
 
     show(element) {

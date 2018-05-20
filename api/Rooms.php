@@ -18,6 +18,9 @@ function rooms_hold_periods() {
             'value' => $request_body->{'userVkId'},
         ),
     );
+    
+    $response = array();
+    
     foreach ($request_body->{'periods'} as $period) {
         $start_time = DateTime::createFromFormat($frontend_date_format, $hold_date . ' ' . $period->{'startTime'});
         $finish_time = DateTime::createFromFormat($frontend_date_format, $hold_date . ' ' . $period->{'finishTime'});
@@ -31,7 +34,34 @@ function rooms_hold_periods() {
             'value' => $finish_time->format($db_date_format),
         );
         $db->execute_statement($prepared_statement, $statement_params);
+        
+        $db_raw_response = array(
+            'startTime' => $start_time->format($frontend_date_format),
+            'finishTime' => $finish_time->format($frontend_date_format),
+            'holdId' => $prepared_statement->insert_id,
+            'holder' => $request_body->{'userVkId'},
+        );
+        array_push($response, $db_raw_response);
     }
+    return $response ? $response : array();
+}
+
+function rooms_discard_hold() {
+    $params = api_get_params(array(
+        'holdId' => 'integer',
+    ));
+    
+    $db = new DB();
+    $prepared_statement = $db->prepare('DELETE
+                                        FROM Holds
+                                        WHERE ID = ?');
+    $statement_params = array(
+        'holdId' => array(
+            'type' => 'i',
+            'value' => $params['holdId'],
+        ),
+    );
+    $db->execute_statement($prepared_statement, $statement_params);
     return 'success';
 }
 
@@ -64,7 +94,7 @@ function rooms_get_hold_period() {
         'date' => 'date',
     ));
     $db = new DB();
-    $prepared_statement = $db->prepare('SELECT StartTime startTime, FinishTime finishTime, HolderVkID holder
+    $prepared_statement = $db->prepare('SELECT ID holdId, StartTime startTime, FinishTime finishTime, HolderVkID holder
                                           FROM Holds
                                           WHERE Holds.RoomID = ? AND
                                                 DATE_FORMAT(StartTime, ?) = ?
