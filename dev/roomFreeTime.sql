@@ -8,7 +8,7 @@ BEGIN
     IF NOT EXISTS (SELECT ID
                    FROM Holds
                    WHERE room = Holds.RoomID AND
-                   		 nowVar > Holds.StartTime AND
+                   		 nowVar < Holds.StartTime AND
                    		 YEAR(nowVar) = YEAR(Holds.StartTime) AND
                    		 MONTH(nowVar) = MONTH(Holds.StartTime) AND
                    		 DAYOFMONTH(nowVar) = DAYOFMONTH(Holds.StartTime)) -- сегодня свободна
@@ -32,9 +32,9 @@ BEGIN
 						  LIMIT 1);        
         END IF;
     ELSE
-    	SET Answer = (SELECT CONCAT(' до ', HOUR(StartTime), ':', MINUTE(StartTime))
+    	SET Answer = (SELECT CONCAT(' до ', DATE_FORMAT(Holds.StartTime, "%H:%i"))
                       FROM Holds
-                      WHERE nowVar < StartTime
+                      WHERE room = Holds.RoomID AND nowVar < StartTime
                       ORDER BY StartTime
                       LIMIT 1); -- Время во сколько освободится сегодня.
     END IF;

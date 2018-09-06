@@ -1,15 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.3
--- https://www.phpmyadmin.net/
+-- version 4.5.4.1deb2ubuntu2
+-- http://www.phpmyadmin.net
 --
--- Хост: 127.0.0.1:3306
--- Время создания: Дек 29 2017 г., 15:03
--- Версия сервера: 5.6.37
--- Версия PHP: 5.5.38
+-- Хост: localhost
+-- Время создания: Май 15 2018 г., 14:19
+-- Версия сервера: 5.7.22-0ubuntu0.16.04.1
+-- Версия PHP: 7.0.30-0ubuntu0.16.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -21,6 +19,80 @@ SET time_zone = "+00:00";
 --
 -- База данных: `VKROOMS`
 --
+
+DELIMITER $$
+--
+-- Функции
+--
+CREATE DEFINER=`root`@`localhost` FUNCTION `isHoldedNow` (`room` INT) RETURNS INT(11) BEGIN
+	DECLARE nowVar DATETIME DEFAULT NOW();
+    IF EXISTS (SELECT ID 
+               FROM Holds 
+               WHERE room = Holds.RoomID AND
+               	 	 nowVar BETWEEN Holds.StartTime AND Holds.FinishTime)
+    THEN
+    	RETURN 1;
+    ELSE
+        RETURN 0;
+    END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `roomFreeTime` (`room` INT) RETURNS VARCHAR(50) CHARSET utf8 BEGIN
+	DECLARE Answer VARCHAR(50) DEFAULT '';
+    DECLARE nowVar DATETIME DEFAULT NOW();
+    IF NOT EXISTS (SELECT ID
+                   FROM Holds
+                   WHERE room = Holds.RoomID AND
+                   		 nowVar > Holds.StartTime AND
+                   		 YEAR(nowVar) = YEAR(Holds.StartTime) AND
+                   		 MONTH(nowVar) = MONTH(Holds.StartTime) AND
+                   		 DAYOFMONTH(nowVar) = DAYOFMONTH(Holds.StartTime))     THEN
+    	IF EXISTS (SELECT ID
+                   FROM Holds
+                   WHERE room = Holds.RoomID AND
+                  		 DATE(DATE_ADD(nowVar, INTERVAL 1 DAY)) BETWEEN DATE(Holds.StartTime) AND DATE(Holds.FinishTime))         THEN
+        	SET Answer = " до завтра";
+        ELSEIF EXISTS (SELECT ID
+                       FROM Holds
+                       WHERE room = Holds.RoomID AND
+                      		 nowVar < Holds.StartTime)         THEN
+        	SET Answer = (SELECT CONCAT(" до ", DATE_FORMAT(Holds.StartTime, "%d.%m.%Y")) 
+                          FROM Holds
+						  WHERE room = Holds.RoomID AND
+								nowVar < Holds.StartTime
+                          ORDER BY Holds.StartTime
+						  LIMIT 1);        
+        END IF;
+    ELSE
+    	SET Answer = (SELECT CONCAT(' до ', HOUR(StartTime), ':', MINUTE(StartTime))
+                      FROM Holds
+                      WHERE nowVar < StartTime
+                      ORDER BY StartTime
+                      LIMIT 1);     END IF;
+    RETURN (Answer);
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `roomHoldText` (`room` INT) RETURNS VARCHAR(70) CHARSET utf8 BEGIN
+	DECLARE Answer VARCHAR(70) DEFAULT '';
+    DECLARE nowVar DATETIME DEFAULT NOW();
+    IF EXISTS (SELECT ID 
+               FROM Holds 
+               WHERE room = Holds.RoomID AND
+               	 	 nowVar BETWEEN Holds.StartTime AND Holds.FinishTime)     THEN
+    	SET Answer = (SELECT CONCAT('Сейчас занята. Освободится в ', DATE_FORMAT(Holds.FinishTime, "%H:%i"))
+                      FROM Holds
+					  WHERE room = Holds.RoomID AND
+                     		nowVar BETWEEN Holds.StartTime AND Holds.FinishTime
+                      ORDER BY Holds.finishTime DESC
+                      LIMIT 1);
+    ELSE
+        SET Answer = (SELECT CONCAT('Свободна', roomFreeTime(room))
+                      FROM DUAL);
+    END IF;
+    RETURN (Answer);
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -68,21 +140,22 @@ CREATE TABLE `Rooms` (
   `ID` int(11) NOT NULL,
   `Name` varchar(30) NOT NULL,
   `Location` varchar(10) DEFAULT NULL,
-  `Photo` varchar(255) DEFAULT ''
+  `Photo` varchar(255) DEFAULT '',
+  `WIDGET_COVER_ID` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `Rooms`
 --
 
-INSERT INTO `Rooms` (`ID`, `Name`, `Location`, `Photo`) VALUES
-(1, 'Оранжевая', '5 этаж', 'images/oranjevaya.jpg'),
-(2, 'Пингвинятник', '5 этаж', 'images/pingvinyatnik.jpg'),
-(3, 'Казанская', '6 этаж', 'images/kazanskaya.jpg'),
-(4, 'Маленькая', '6 этаж', ''),
-(5, 'Проекторная', '6 этаж', ''),
-(6, 'Круглая', '7 этаж', ''),
-(7, 'Пыточная', '7 этаж', '');
+INSERT INTO `Rooms` (`ID`, `Name`, `Location`, `Photo`, `WIDGET_COVER_ID`) VALUES
+(1, 'Оранжевая', '5 этаж', 'images/oranjevaya.jpg', ''),
+(2, 'Пингвинятник', '5 этаж', 'images/pingvinyatnik.jpg', ''),
+(3, 'Казанская', '6 этаж', 'images/kazanskaya.jpg', ''),
+(4, 'Маленькая', '6 этаж', 'images/malenkaya.jpg', ''),
+(5, 'Проекторная', '6 этаж', 'images/proektornaya.jpg', ''),
+(6, 'Круглая', '7 этаж', 'images/kryglaya.jpg', ''),
+(7, 'Пыточная', '7 этаж', 'images/pytochnaya.jpg', '');
 
 --
 -- Индексы сохранённых таблиц
@@ -124,7 +197,6 @@ ALTER TABLE `Rooms`
 --
 ALTER TABLE `Holds`
   ADD CONSTRAINT `FK_HoldsRooms` FOREIGN KEY (`RoomID`) REFERENCES `Rooms` (`ID`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
